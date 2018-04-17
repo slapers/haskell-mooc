@@ -1,7 +1,7 @@
 module Mastermind () where
 
 import System.Random (randomRIO, mkStdGen, randomRs)
-import Data.List (intersperse)
+import Data.List (intersperse, partition, sort)
 
 maxTurns = 10
 colors = "RGBYW"
@@ -12,8 +12,24 @@ fmtGuess secret guess =
   "|  " ++ show corr ++ "   " ++
   "|    " ++ show skewed ++ "   |\n"
   where
-    corr = length . filter id $ uncurry (==) <$> zip secret guess
-    skewed = (length . filter id $ ($ guess) . elem <$> secret) - corr
+    (corr, skewed) = check secret guess
+
+check :: String -> String -> (Int, Int)
+check secret guess =
+  let
+    (corr, miss) = partition (uncurry (==)) (zip secret guess)
+  in
+  (length corr, uncurry skewed (unzip miss))
+
+skewed :: String -> String -> Int
+skewed xs ys = go (sort xs) (sort ys) 0
+  where
+    go [] _ acc = acc
+    go _ [] acc = acc
+    go (x:xs) (y:ys) acc
+      | x < y = go xs (y:ys) acc
+      | x > y = go (x:xs) ys acc
+      | otherwise = go xs ys (acc + 1)
 
 paint :: String -> [String] -> IO ()
 paint secret guesses =
