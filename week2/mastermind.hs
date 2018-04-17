@@ -19,7 +19,7 @@ paint :: String -> [String] -> IO ()
 paint secret guesses =
   putStr header >> putStr guessesFmt >> putStr footer
   where
-    guessesFmt = concat $ fmtGuess secret <$> guesses
+    guessesFmt = concat $ fmtGuess secret <$> reverse guesses
     header = "+-----------------+------+--------+\n" ++
              "| [?] [?] [?] [?] | CORR | SKEWED |\n" ++
              "+-----------------+------+--------+\n"
